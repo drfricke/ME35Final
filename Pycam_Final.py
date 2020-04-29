@@ -54,7 +54,7 @@ def mse(imageA, imageB):
 
 #Syetem link header
 def SL_setup():
-    Key = 'bvd8X9LweQY9o2eP1NYL-p8mLL9wMAk6YYOnYSiIo0'
+    Key = #####
     urlBase = "https://api.systemlinkcloud.com/nitag/v2/tags/"
     headers = {"Accept":"application/json","x-ni-api-key":Key}
     return urlBase, headers
