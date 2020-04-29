@@ -17,16 +17,16 @@ import time
 def array_to_image(a, fmt='jpeg'):
     #Create binary stream object
     f = BytesIO()
-    
     #Convert array to binary stream object
     PIL.Image.fromarray(a).save(f, fmt)
-    
     return IPython.display.Image(data=f.getvalue())
 
+#Saves image on SD card
 def save_image(frame):
     cv2.imwrite('test.jpeg', frame)
     return print('Saved')
 
+#Crops image
 def get_frame(cam):
     # Capture frame-by-frame
     ret, frame = cam.read()
@@ -47,6 +47,7 @@ frame = imutils.resize(frame, width=200, inter=cv2.INTER_LINEAR)
 save_image(frame)
 
 cam.release()
+
 #Call the function to convert array data to image
 frame = array_to_image(frame)
 
@@ -55,8 +56,11 @@ d1.update(frame)
 
 
 #####################
+### Seperate Half ###
+#####################
 
 
+#Uploads target
 img = cv2.imread("target.jpeg")
 
 
@@ -71,6 +75,7 @@ frame = imutils.resize(frame, width=200, inter=cv2.INTER_LINEAR)
 
 cam.release()
 
+#Statistical Modeling
 def mse(imageA, imageB):
     err = np.sum((imageA - imageB) ** 2)
     err = err/((float(imageA.shape[1] * imageA.shape[0]))**2)
@@ -82,6 +87,7 @@ def mse(imageA, imageB):
 #print(type(frame),type(img))
 err = mse(frame, img)
 
+#Thersholding
 if err < 0.0050:
     print('Target Aquired!')
     print(err)
@@ -93,6 +99,7 @@ if err >= 0.0050:
 frame = array_to_image(frame)
 img = array_to_image(img)
 
+#Displays Images
 d2 = IPython.display.display("Your image displayed here!", display_id=2)
 d3 = IPython.display.display("Your image displayed here!", display_id=3)
 d2.update(frame)
