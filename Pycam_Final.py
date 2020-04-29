@@ -10,7 +10,7 @@ from IPython.display import clear_output
 import serial #need for ev3 talk
 s=serial.Serial("/dev/serial0",9600,timeout=2)
 
-#system link coms - this has been modified to work with chris verision
+#system link coms - this has been modified to work with Chris's verision
 import binascii as ubinascii
 import json as ujson
 import requests as urequests
@@ -20,12 +20,16 @@ import imutils
 import numpy as np #useful math/array stuff
 import time
 
+#Basic System's Check
+
 print('Libraries Loaded')
 s.write('L'.encode())
 
 
 #######################
 
+
+# Convert's array values to image format
 def array_to_image(a, fmt='jpeg'):
     #Create binary stream object
     f = BytesIO()
@@ -36,27 +40,26 @@ def array_to_image(a, fmt='jpeg'):
 
 # Function to read the frame from camera
 def get_frame(cam):
-    # Capture frame-by-frame
     ret, frame = cam.read()
     crop = frame[1:250,150:400]
     #crop = vis[y1:y2,x1:x2] cropping image
-    #max values for this??:should find that sometime
     return crop
 
-#mean square error
+#mean square error function
 def mse(imageA, imageB):
     err = np.sum((imageA - imageB) ** 2)
     err = err/(float(imageA.shape[1] * imageA.shape[0])**2)
     
     return err
 
-
+#Syetem link header
 def SL_setup():
     Key = 'bvd8X9LweQY9o2eP1NYL-p8mLL9wMAk6YYOnYSiIo0'
     urlBase = "https://api.systemlinkcloud.com/nitag/v2/tags/"
     headers = {"Accept":"application/json","x-ni-api-key":Key}
     return urlBase, headers
 
+#upload info to cloud
 def Put_SL(Tag, Type, Value):
      urlBase, headers = SL_setup()
      urlValue = urlBase + Tag + "/values/current"
@@ -68,6 +71,7 @@ def Put_SL(Tag, Type, Value):
           reply = 'failed'
      return reply
 
+#down load info from cloud
 def Get_SL(Tag):
     urlBase, headers = SL_setup()
     urlValue = urlBase + Tag + "/values/current"
@@ -83,6 +87,9 @@ def Get_SL(Tag):
         print(e)
         result = 'failed'
     return result
+
+#Displays feed, counter added incase user terminates code remotely,
+#The camera is released. Avoids camera issues
 
 def CameraOn():
     d1 = IPython.display.display("Viewing Window", display_id=1)
@@ -107,6 +114,7 @@ def CameraOn():
         
         #Checks Error
         err = mse(frame, img)
+        #Thersholding
         if err < 0.0050:
             s=serial.Serial("/dev/serial0",9600,timeout=2)
             s.write("y".encode()) #to yes write to EV3
@@ -126,15 +134,16 @@ def CameraOn():
         #Call the function to convert array data to image
         frame = array_to_image(frame)
 
-        #Let's see the image below
+        #Updates live feed
         d1.update(frame)
 
 
 
-
+#Target image for release
 img = cv2.imread("target.jpeg")
 
 
+#Main loop
 while True:
     if Get_SL('Start08') == 'false':
         print('waiting')
